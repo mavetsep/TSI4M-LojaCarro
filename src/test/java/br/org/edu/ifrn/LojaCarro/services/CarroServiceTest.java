@@ -43,7 +43,7 @@ public class CarroServiceTest {
         Carro carroSalvo = carroService.save(new Carro());
 
         assertNotNull(carroSalvo);
-        assertEquals("Renault Clio", carroSalvo.getModelo());
+        assertEquals("Corsa Classic", carroSalvo.getModelo());
         verify(carroRepository, times(1)).save(any(Carro.class));
     }
 
