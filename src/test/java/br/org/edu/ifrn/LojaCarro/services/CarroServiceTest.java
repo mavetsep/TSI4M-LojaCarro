@@ -69,7 +69,7 @@ public class CarroServiceTest {
         List<Carro> carros = carroService.findAll();
 
         assertEquals(2, carros.size());
-        assertEquals("Toyota Corolla", carros.get(0).getModelo());
+        assertEquals("Renault Clio", carros.get(0).getModelo());
         assertEquals("Honda Civic", carros.get(1).getModelo());
     }
 
