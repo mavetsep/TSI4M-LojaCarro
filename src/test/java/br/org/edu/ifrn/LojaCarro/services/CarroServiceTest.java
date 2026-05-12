@@ -32,7 +32,7 @@ public class CarroServiceTest {
     void setUp() {
         carroPadrao = new Carro();
         carroPadrao.setId(1L);
-        carroPadrao.setModelo("Nissan Sentra");
+        carroPadrao.setModelo("Renault Clio");
         carroPadrao.setAno(2024);
     }
 
@@ -43,7 +43,7 @@ public class CarroServiceTest {
         Carro carroSalvo = carroService.save(new Carro());
 
         assertNotNull(carroSalvo);
-        assertEquals("Nissan Sentra", carroSalvo.getModelo());
+        assertEquals("Renault Clio", carroSalvo.getModelo());
         verify(carroRepository, times(1)).save(any(Carro.class));
     }
 
@@ -69,7 +69,7 @@ public class CarroServiceTest {
         List<Carro> carros = carroService.findAll();
 
         assertEquals(2, carros.size());
-        assertEquals("Nissan Sentra", carros.get(0).getModelo());
+        assertEquals("Renault Clio", carros.get(0).getModelo());
         assertEquals("Honda Civic", carros.get(1).getModelo());
     }
 
