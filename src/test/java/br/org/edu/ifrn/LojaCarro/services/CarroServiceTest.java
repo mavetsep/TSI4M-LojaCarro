@@ -32,7 +32,7 @@ public class CarroServiceTest {
     void setUp() {
         carroPadrao = new Carro();
         carroPadrao.setId(1L);
-        carroPadrao.setModelo("Toyota Corolla");
+        carroPadrao.setModelo("Renault Clio");
         carroPadrao.setAno(2024);
     }
 
@@ -43,7 +43,7 @@ public class CarroServiceTest {
         Carro carroSalvo = carroService.save(new Carro());
 
         assertNotNull(carroSalvo);
-        assertEquals("Toyota Corolla", carroSalvo.getModelo());
+        assertEquals("Corsa Classic", carroSalvo.getModelo());
         verify(carroRepository, times(1)).save(any(Carro.class));
     }
 
