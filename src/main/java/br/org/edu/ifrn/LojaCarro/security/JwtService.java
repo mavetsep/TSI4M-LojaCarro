@@ -3,7 +3,6 @@ package br.org.edu.ifrn.LojaCarro.security;
 import br.org.edu.ifrn.LojaCarro.entity.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +18,7 @@ import java.util.function.Function;
 public class JwtService {
 
     private static final String SECRET_KEY = "MzI0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODk=";
-    private static final long EXPIRATION_TIME = 1000L * 60 * 60; // 1 hora
+    private static final long EXPIRATION_TIME = 1000L * 60 * 60;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -27,7 +26,8 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        if (userDetails instanceof Usuario usuario) {
+        if (userDetails instanceof CustomUserDetails customUserDetails) {
+            Usuario usuario = customUserDetails.getUsuario();
             claims.put("role", usuario.getRole().name());
         }
         return createToken(claims, userDetails.getUsername());
@@ -58,8 +58,7 @@ public class JwtService {
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+        return claimsResolver.apply(extractAllClaims(token));
     }
 
     private Claims extractAllClaims(String token) {

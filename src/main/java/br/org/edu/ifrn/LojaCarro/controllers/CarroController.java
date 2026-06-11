@@ -1,9 +1,8 @@
 package br.org.edu.ifrn.LojaCarro.controllers;
 
-import br.org.edu.ifrn.LojaCarro.model.Carro;
+import br.org.edu.ifrn.LojaCarro.entity.Carro;
 import br.org.edu.ifrn.LojaCarro.services.CarroService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,10 +13,13 @@ import java.util.Optional;
 @RequestMapping("/carro")
 public class CarroController {
 
-    @Autowired
-    private CarroService carroService;
+    private final CarroService carroService;
 
-    @PostMapping("salvar")
+    public CarroController(CarroService carroService) {
+        this.carroService = carroService;
+    }
+
+    @PostMapping("/salvar")
     public ResponseEntity<Carro> salvarCarro(@RequestBody @Valid Carro c) {
         Carro savedCarro = carroService.save(c);
         return ResponseEntity.ok(savedCarro);
@@ -25,7 +27,6 @@ public class CarroController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Carro> atualizarCarro(@PathVariable Long id, @RequestBody @Valid Carro c) {
-        // ← ADICIONADO: verifica se existe antes de atualizar
         if (carroService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -36,7 +37,6 @@ public class CarroController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarCarro(@PathVariable Long id) {
-        // ← ADICIONADO: verifica se existe antes de deletar
         if (carroService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }

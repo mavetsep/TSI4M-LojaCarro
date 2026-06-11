@@ -1,4 +1,4 @@
-package br.org.edu.ifrn.LojaCarro.model;
+package br.org.edu.ifrn.LojaCarro.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,23 +19,26 @@ public class Carro {
     private Long id;
 
     @NotBlank(message = "Marca e obrigatoria")
+    @Size(max = 255, message = "Marca nao pode ter mais de 255 caracteres")
     private String marca;
 
-    @NotNull(message = "Modelo e obrigatorio")
+    @NotBlank(message = "Modelo e obrigatorio")
     @Size(max = 30, message = "Modelo nao pode ter mais de 30 caracteres")
     private String modelo;
 
-    @Max(value = 2026, message = "Ano nao pode ser futuro")
+    @NotNull(message = "Ano e obrigatorio")
     @Min(value = 1886, message = "Ano invalido")
-    private int ano;
+    @Max(value = 2026, message = "Ano nao pode ser futuro")
+    private Integer ano;
 
+    @NotNull(message = "Preco e obrigatorio")
     @Positive(message = "Preco deve ser positivo")
     private Double preco;
 
     public Carro() {
     }
 
-    public Carro(String marca, String modelo, int ano, Double preco) {
+    public Carro(String marca, String modelo, Integer ano, Double preco) {
         this.marca = marca;
         this.modelo = modelo;
         this.ano = ano;
@@ -66,11 +69,11 @@ public class Carro {
         this.modelo = modelo;
     }
 
-    public int getAno() {
+    public Integer getAno() {
         return ano;
     }
 
-    public void setAno(int ano) {
+    public void setAno(Integer ano) {
         this.ano = ano;
     }
 

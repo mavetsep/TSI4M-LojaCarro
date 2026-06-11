@@ -1,26 +1,30 @@
 package br.org.edu.ifrn.LojaCarro.entity;
 
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.List;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "usuarios")
-public class Usuario implements UserDetails {
+@Table(name = "usuario")
+public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+    @NotBlank(message = "Nome e obrigatorio")
+    @Size(max = 100, message = "Nome nao pode ter mais de 100 caracteres")
+    private String nome;
 
-    @Column(nullable = false)
-    private String password;
+    @NotBlank(message = "Email e obrigatorio")
+    @Email(message = "Email invalido")
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @NotBlank(message = "Senha e obrigatoria")
+    @Size(min = 6, message = "Senha deve ter no minimo 6 caracteres")
+    private String senha;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -29,52 +33,11 @@ public class Usuario implements UserDetails {
     public Usuario() {
     }
 
-    public Usuario(String username, String password, Role role) {
-        this.username = username;
-        this.password = password;
+    public Usuario(String nome, String email, String senha, Role role) {
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
         this.role = role;
-    }
-
-    public Usuario(Long id, String username, String password, Role role) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.role = role;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 
     public Long getId() {
@@ -85,12 +48,28 @@ public class Usuario implements UserDetails {
         this.id = id;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getNome() {
+        return nome;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public Role getRole() {
