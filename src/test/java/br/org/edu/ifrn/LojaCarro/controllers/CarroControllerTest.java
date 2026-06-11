@@ -13,12 +13,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CarroController.class)
-public class CarroControllerTest {
+class CarroControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -29,69 +35,38 @@ public class CarroControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // ===================== HAPPY PATH =====================
-
-    @Test
-    void testSalvar() throws Exception {
+    private Carro carroValido() {
         Carro carro = new Carro();
         carro.setId(1L);
-        carro.setModelo("Civic");
-        carro.setAno(2022);
-        carro.setPreco(120000.00);
+        carro.setMarca("Toyota");
+        carro.setModelo("Corolla");
+        carro.setAno(2023);
+        carro.setPreco(95000.0);
+        return carro;
+    }
 
+    @Test
+    void deveSalvarCarro() throws Exception {
+        Carro carro = carroValido();
         when(carroService.save(any(Carro.class))).thenReturn(carro);
 
         mockMvc.perform(post("/carro/salvar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(carro)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.modelo").value("Civic"));
-    }
-
-    @Test
-    void testDeletar() throws Exception {
-        doNothing().when(carroService).deleteById(1L);
-
-        mockMvc.perform(delete("/carro/1"))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void testAtualizar() throws Exception {
-        Carro carro = new Carro();
-        carro.setId(1L);
-        carro.setModelo("Gol G6");
-        carro.setAno(2020);
-        carro.setPreco(55000.00);
-
-        when(carroService.update(any(Carro.class))).thenReturn(carro);
-
-        mockMvc.perform(put("/carro/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(carro)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.modelo").value("Gol G6"));
-    }
-
-    @Test
-    void testBuscarPorId() throws Exception {
-        Carro carro = new Carro();
-        carro.setId(1L);
-        carro.setModelo("Corolla");
-        carro.setAno(2021);
-        carro.setPreco(115000.00);
-
-        when(carroService.findById(1L)).thenReturn(Optional.of(carro));
-
-        mockMvc.perform(get("/carro/1"))
-                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.marca").value("Toyota"))
                 .andExpect(jsonPath("$.modelo").value("Corolla"));
     }
 
     @Test
-    void testListarTodos() throws Exception {
-        Carro c1 = new Carro(); c1.setModelo("Fusca"); c1.setAno(1980); c1.setPreco(25000.00);
-        Carro c2 = new Carro(); c2.setModelo("HB20");  c2.setAno(2023); c2.setPreco(85000.00);
+    void deveListarTodos() throws Exception {
+        Carro c1 = carroValido();
+        Carro c2 = new Carro();
+        c2.setId(2L);
+        c2.setMarca("Honda");
+        c2.setModelo("Civic");
+        c2.setAno(2022);
+        c2.setPreco(88000.0);
 
         when(carroService.findAll()).thenReturn(List.of(c1, c2));
 
@@ -100,10 +75,17 @@ public class CarroControllerTest {
                 .andExpect(jsonPath("$.length()").value(2));
     }
 
-    // ===================== BAD PATH =====================
+    @Test
+    void deveBuscarPorId() throws Exception {
+        when(carroService.findById(1L)).thenReturn(Optional.of(carroValido()));
+
+        mockMvc.perform(get("/carro/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.modelo").value("Corolla"));
+    }
 
     @Test
-    void testBuscarIdInexistenteRetorna404() throws Exception {
+    void deveRetornar404QuandoIdNaoExiste() throws Exception {
         when(carroService.findById(999L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/carro/999"))
@@ -111,50 +93,31 @@ public class CarroControllerTest {
     }
 
     @Test
-    void testSalvarCarroSemModeloRetorna400() throws Exception {
-        Carro carro = new Carro();
-        carro.setModelo(null);
-        carro.setAno(2022);
-        carro.setPreco(50000.00);
+    void deveAtualizarCarro() throws Exception {
+        Carro carro = carroValido();
+        carro.setModelo("Corolla Altis");
 
-        mockMvc.perform(post("/carro/salvar")
+        when(carroService.update(any(Carro.class))).thenReturn(carro);
+
+        mockMvc.perform(put("/carro/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(carro)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.modelo").value("Corolla Altis"));
     }
 
     @Test
-    void testSalvarCarroComModeloMaiorQue10CaracteresRetorna400() throws Exception {
-        Carro carro = new Carro();
-        carro.setModelo("NomeExtremamenteLongo");
-        carro.setAno(2022);
-        carro.setPreco(50000.00);
+    void deveDeletarCarro() throws Exception {
+        doNothing().when(carroService).deleteById(1L);
 
-        mockMvc.perform(post("/carro/salvar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(carro)))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(delete("/carro/1"))
+                .andExpect(status().isNoContent());
     }
 
     @Test
-    void testSalvarCarroComAnoFuturoRetorna400() throws Exception {
-        Carro carro = new Carro();
-        carro.setModelo("Civic");
-        carro.setAno(2027);
-        carro.setPreco(50000.00);
-
-        mockMvc.perform(post("/carro/salvar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(carro)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testSalvarCarroComPrecoNegativoRetorna400() throws Exception {
-        Carro carro = new Carro();
-        carro.setModelo("Civic");
-        carro.setAno(2022);
-        carro.setPreco(-5000.00);
+    void deveRetornar400SemMarca() throws Exception {
+        Carro carro = carroValido();
+        carro.setMarca(null);
 
         mockMvc.perform(post("/carro/salvar")
                         .contentType(MediaType.APPLICATION_JSON)

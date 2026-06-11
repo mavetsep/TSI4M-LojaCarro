@@ -4,15 +4,15 @@ import br.org.edu.ifrn.LojaCarro.model.Carro;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-public class CarroRepositoryTest {
+@DataJpaTest
+class CarroRepositoryTest {
 
     @Autowired
     private CarroRepository carroRepository;
@@ -23,68 +23,42 @@ public class CarroRepositoryTest {
     }
 
     @Test
-    void testSalvar() {
-        Carro carro = new Carro();
-        carro.setModelo("Civic");
-        carro.setAno(2022);
-        carro.setPreco(120000.00);
+    void deveSalvarCarro() {
+        Carro carro = new Carro("Toyota", "Corolla", 2023, 95000.0);
 
         Carro salvo = carroRepository.save(carro);
 
         assertNotNull(salvo.getId());
-        assertEquals("Civic", salvo.getModelo());
+        assertEquals("Toyota", salvo.getMarca());
+        assertEquals("Corolla", salvo.getModelo());
     }
 
     @Test
-    void testDeletar() {
-        Carro carro = new Carro();
-        carro.setModelo("Palio");
-        carro.setAno(2005);
-        carro.setPreco(30000.00);
+    void deveBuscarPorId() {
+        Carro salvo = carroRepository.save(new Carro("Honda", "Civic", 2022, 88000.0));
 
-        Carro salvo = carroRepository.save(carro);
-        carroRepository.deleteById(salvo.getId());
-
-        assertFalse(carroRepository.findById(salvo.getId()).isPresent());
-    }
-
-    @Test
-    void testAtualizar() {
-        Carro carro = new Carro();
-        carro.setModelo("Gol");
-        carro.setAno(2010);
-        carro.setPreco(50000.00);
-
-        Carro salvo = carroRepository.save(carro);
-        salvo.setModelo("Gol G6");
-        Carro atualizado = carroRepository.save(salvo);
-
-        assertEquals("Gol G6", atualizado.getModelo());
-    }
-
-    @Test
-    void testBuscarPorId() {
-        Carro carro = new Carro();
-        carro.setModelo("Corolla");
-        carro.setAno(2021);
-        carro.setPreco(115000.00);
-
-        Carro salvo = carroRepository.save(carro);
         Optional<Carro> encontrado = carroRepository.findById(salvo.getId());
 
         assertTrue(encontrado.isPresent());
-        assertEquals("Corolla", encontrado.get().getModelo());
+        assertEquals("Civic", encontrado.get().getModelo());
     }
 
     @Test
-    void testListarTodos() {
-        Carro c1 = new Carro(); c1.setModelo("Fusca");  c1.setAno(1980); c1.setPreco(25000.00);
-        Carro c2 = new Carro(); c2.setModelo("HB20");   c2.setAno(2023); c2.setPreco(85000.00);
-
-        carroRepository.save(c1);
-        carroRepository.save(c2);
+    void deveListarTodos() {
+        carroRepository.save(new Carro("Fiat", "Uno", 2020, 45000.0));
+        carroRepository.save(new Carro("Chevrolet", "Onix", 2022, 70000.0));
 
         List<Carro> carros = carroRepository.findAll();
+
         assertEquals(2, carros.size());
+    }
+
+    @Test
+    void deveDeletarCarro() {
+        Carro salvo = carroRepository.save(new Carro("Volkswagen", "Gol", 2019, 55000.0));
+
+        carroRepository.deleteById(salvo.getId());
+
+        assertFalse(carroRepository.findById(salvo.getId()).isPresent());
     }
 }

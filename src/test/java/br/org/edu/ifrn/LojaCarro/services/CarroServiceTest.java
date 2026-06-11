@@ -2,93 +2,97 @@ package br.org.edu.ifrn.LojaCarro.services;
 
 import br.org.edu.ifrn.LojaCarro.model.Carro;
 import br.org.edu.ifrn.LojaCarro.repository.CarroRepository;
+import br.org.edu.ifrn.LojaCarro.services.CarroService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class CarroServiceTest {
+@SpringBootTest
+@ActiveProfiles("test")
+class CarroServiceTest {
 
-    @Mock
-    private CarroRepository carroRepository;
+    @Autowired
+    private CarroService service;
 
-    @InjectMocks
-    private CarroService carroService;
-
-    private Carro carroPadrao;
+    @Autowired
+    private CarroRepository repository;
 
     @BeforeEach
-    void setUp() {
-        carroPadrao = new Carro();
-        carroPadrao.setId(1L);
-        carroPadrao.setModelo("Renault Clio");
-        carroPadrao.setAno(2024);
+    void limparBanco() {
+        repository.deleteAll();
     }
 
     @Test
-    void testSalvarCarroSucesso() {
-        when(carroRepository.save(any(Carro.class))).thenReturn(carroPadrao);
-
-        Carro carroSalvo = carroService.save(new Carro());
-
-        assertNotNull(carroSalvo);
-        assertEquals("Renault Clio", carroSalvo.getModelo());
-        verify(carroRepository, times(1)).save(any(Carro.class));
+    void deveSalvarCarro() {
+        Carro salvo = service.save(new Carro("Toyota", "Corolla", 2023, 95000.0));
+        assertNotNull(salvo.getId());
+        assertEquals("Toyota", salvo.getMarca());
     }
 
     @Test
-    void testPesquisarCarroPorIdComSucesso() {
-        when(carroRepository.findById(1L)).thenReturn(Optional.of(carroPadrao));
+    void deveBuscarPorId() {
+        Carro salvo = repository.save(new Carro("BMW", "320i", 2023, 200000.0));
+        Optional<Carro> resultado = service.findById(salvo.getId());
 
-        Optional<Carro> carroEncontrado = carroService.findById(1L);
-
-        assertTrue(carroEncontrado.isPresent());
-        assertEquals(2024, carroEncontrado.get().getAno());
+        assertTrue(resultado.isPresent());
+        assertEquals("320i", resultado.get().getModelo());
     }
 
     @Test
-    void testPesquisarTodosCarros() {
-        Carro carro2 = new Carro();
-        carro2.setId(2L);
-        carro2.setModelo("Honda Civic");
-        carro2.setAno(2023);
+    void deveRetornarVazioQuandoIdNaoExiste() {
+        Optional<Carro> resultado = service.findById(9999L);
+        assertFalse(resultado.isPresent());
+    }
 
-        when(carroRepository.findAll()).thenReturn(Arrays.asList(carroPadrao, carro2));
+    @Test
+    void deveListarTodos() {
+        repository.save(new Carro("Fiat", "Uno", 2020, 45000.0));
+        repository.save(new Carro("Honda", "Civic", 2022, 88000.0));
 
-        List<Carro> carros = carroService.findAll();
-
+        List<Carro> carros = service.findAll();
         assertEquals(2, carros.size());
-        assertEquals("Renault Clio", carros.get(0).getModelo());
-        assertEquals("Honda Civic", carros.get(1).getModelo());
     }
 
     @Test
-    void testAtualizarCarro() {
-        when(carroRepository.save(any(Carro.class))).thenReturn(carroPadrao);
-
-        Carro carroAtualizado = carroService.update(carroPadrao);
-
-        assertNotNull(carroAtualizado);
-        assertEquals(1L, carroAtualizado.getId());
-        verify(carroRepository, times(1)).save(carroPadrao);
+    void deveRetornarListaVazia() {
+        List<Carro> carros = service.findAll();
+        assertTrue(carros.isEmpty());
     }
 
     @Test
-    void testDeletarCarroPorId() {
-        doNothing().when(carroRepository).deleteById(1L);
+    void deveAtualizarCarro() {
+        Carro salvo = repository.save(new Carro("Hyundai", "HB20", 2021, 60000.0));
+        salvo.setModelo("HB20S");
+        salvo.setPreco(65000.0);
 
-        assertDoesNotThrow(() -> carroService.deleteById(1L));
-        verify(carroRepository, times(1)).deleteById(1L);
+        Carro atualizado = service.update(salvo);
+
+        assertEquals("HB20S", atualizado.getModelo());
+        assertEquals(65000.0, atualizado.getPreco());
+    }
+
+    @Test
+    void deveDeletarCarro() {
+        Carro salvo = repository.save(new Carro("Chevrolet", "Onix", 2021, 70000.0));
+        service.deleteById(salvo.getId());
+
+        assertFalse(repository.existsById(salvo.getId()));
+    }
+
+    @Test
+    void deveRetornarTrueParaLoginValido() {
+        assertTrue(service.login("admin", "1234"));
+    }
+
+    @Test
+    void deveRetornarFalseParaLoginInvalido() {
+        assertFalse(service.login("admin", "errada"));
     }
 }
