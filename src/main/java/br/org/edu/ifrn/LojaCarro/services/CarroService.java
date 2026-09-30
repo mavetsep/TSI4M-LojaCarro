@@ -1,9 +1,9 @@
 package br.org.edu.ifrn.LojaCarro.services;
 
 import br.org.edu.ifrn.LojaCarro.CarroException;
+import br.org.edu.ifrn.LojaCarro.exception.RecursoNaoEncontradoException;
 import br.org.edu.ifrn.LojaCarro.model.Carro;
 import br.org.edu.ifrn.LojaCarro.repository.CarroRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,8 +13,11 @@ import java.util.Optional;
 @Service
 public class CarroService {
 
-    @Autowired
-    public CarroRepository carroRepository;
+    private final CarroRepository carroRepository;
+
+    public CarroService(CarroRepository carroRepository) {
+        this.carroRepository = carroRepository;
+    }
 
     public Carro save(Carro c) {
         validarModelo(c.getModelo());  // Valida o modelo antes de salvar
@@ -24,15 +27,18 @@ public class CarroService {
 
     // Novo método para deletar por ID
     public void deleteById(Long id) {
-        if(id <= 0){
+        if(id == null || id <= 0){
             throw new CarroException("O ID do carro não pode ser negativo. ID fornecido: " + id);
+        }
+        if (!carroRepository.existsById(id)) {
+            throw new RecursoNaoEncontradoException("Carro nao encontrado: " + id);
         }
         carroRepository.deleteById(id);
     }
 
     // Novo método para pesquisar por ID
     public Optional<Carro> findById(Long id) {
-        if(id <= 0){
+        if(id == null || id <= 0){
             throw new CarroException("O ID do carro não pode ser negativo. ID fornecido: " + id);
         }
         return carroRepository.findById(id);
@@ -72,7 +78,7 @@ public class CarroService {
             throw new CarroException("O ID do carro para atualização não pode ser nulo.");
         }
         if (!carroRepository.existsById(c.getId())) {
-            throw new CarroException("Carro com ID " + c.getId() + " não encontrado para atualização.");
+            throw new RecursoNaoEncontradoException("Carro com ID " + c.getId() + " não encontrado para atualização.");
         }
         validarModelo(c.getModelo());  // Valida o modelo antes de atualizar
         validarPreco(c.getPreco());

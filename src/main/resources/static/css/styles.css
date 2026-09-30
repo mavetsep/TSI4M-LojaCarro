@@ -1,0 +1,49 @@
+:root {
+    color-scheme: light;
+    font-family: Arial, sans-serif;
+    color: #1f2937;
+    background: #f3f4f6;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; }
+
+.login-page { min-height: 100vh; display: grid; place-items: center; padding: 1rem; }
+.login-card, .panel { background: #fff; border: 1px solid #d1d5db; border-radius: 10px; padding: 1.5rem; box-shadow: 0 4px 14px #00000012; }
+.login-card { width: min(100%, 380px); }
+h1, h2 { margin-top: 0; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.15rem; }
+.muted, small { color: #6b7280; }
+.message { min-height: 1.5rem; margin: .75rem 0; padding: .65rem; border-radius: 6px; }
+.message:empty { display: none; }
+.message.error { background: #fee2e2; color: #991b1b; }
+.message.success { background: #dcfce7; color: #166534; }
+label { display: block; font-weight: 600; margin: .7rem 0 .3rem; }
+input, select, button { font: inherit; }
+input, select { width: 100%; padding: .65rem; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+button { border: 0; border-radius: 6px; padding: .65rem 1rem; background: #2563eb; color: #fff; cursor: pointer; }
+button:hover { background: #1d4ed8; }
+button.secondary { background: #6b7280; }
+button.danger { background: #dc2626; }
+.login-card button { width: 100%; margin-top: 1rem; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem max(1rem, calc((100% - 1100px) / 2)); background: #111827; color: #fff; }
+.topbar .muted { color: #d1d5db; margin-left: .75rem; }
+.container { width: min(100% - 2rem, 1100px); margin: 2rem auto; }
+section { margin-bottom: 2rem; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .5rem 1rem; align-items: end; }
+.form-actions { display: flex; gap: .5rem; align-items: end; padding-bottom: .1rem; }
+.table-wrapper { overflow-x: auto; margin-top: 1rem; background: #fff; border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; border-bottom: 1px solid #e5e7eb; padding: .75rem; white-space: nowrap; }
+th { background: #e5e7eb; }
+td button { margin-right: .35rem; padding: .45rem .7rem; }
+.hidden { display: none !important; }
+
+@media (max-width: 600px) {
+    .topbar { align-items: flex-start; }
+    .topbar .muted { display: block; margin: .25rem 0 0; }
+    .form-actions { grid-column: 1 / -1; }
+}

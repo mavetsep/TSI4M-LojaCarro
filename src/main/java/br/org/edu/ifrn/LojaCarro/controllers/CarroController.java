@@ -4,7 +4,6 @@ package br.org.edu.ifrn.LojaCarro.controllers;
 import br.org.edu.ifrn.LojaCarro.CarroException;
 import br.org.edu.ifrn.LojaCarro.model.Carro;
 import br.org.edu.ifrn.LojaCarro.services.CarroService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import java.util.Optional;
 @RequestMapping("/carro")
 public class CarroController {
 
-    @Autowired
-    private CarroService carroService;
+    private final CarroService carroService;
+
+    public CarroController(CarroService carroService) {
+        this.carroService = carroService;
+    }
 
     // Salvar carro (corrigido para POST)
     @PostMapping("salvar")

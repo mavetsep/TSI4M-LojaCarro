@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - LojaCarro</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="topbar">
+    <div>
+        <strong>LojaCarro</strong>
+        <span id="user-summary" class="muted"></span>
+    </div>
+    <button id="logout-button" class="secondary" type="button">Sair</button>
+</header>
+
+<main class="container">
+    <div id="app-message" class="message" role="alert" aria-live="polite"></div>
+
+    <section>
+        <div class="section-heading">
+            <h1>Carros</h1>
+            <button id="refresh-cars" class="secondary" type="button">Atualizar</button>
+        </div>
+        <div id="car-form-section" class="panel hidden">
+            <h2 id="car-form-title">Cadastrar carro</h2>
+            <form id="car-form" class="form-grid">
+                <input id="car-id" type="hidden">
+                <div>
+                    <label for="car-modelo">Modelo</label>
+                    <input id="car-modelo" required maxlength="80">
+                </div>
+                <div>
+                    <label for="car-ano">Ano</label>
+                    <input id="car-ano" type="number" min="1886" max="2200" required>
+                </div>
+                <div>
+                    <label for="car-preco">Preço</label>
+                    <input id="car-preco" type="number" min="0" step="0.01" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Salvar carro</button>
+                    <button id="cancel-car" class="secondary" type="button">Cancelar</button>
+                </div>
+            </form>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Modelo</th><th>Ano</th><th>Preço</th><th>Ações</th></tr></thead>
+                <tbody id="cars-body"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="client-section" class="hidden">
+        <div class="section-heading">
+            <h1>Clientes</h1>
+            <button id="refresh-clients" class="secondary" type="button">Atualizar</button>
+        </div>
+        <div class="panel">
+            <h2 id="client-form-title">Cadastrar cliente</h2>
+            <form id="client-form" class="form-grid">
+                <input id="client-id" type="hidden">
+                <div>
+                    <label for="client-name">Nome</label>
+                    <input id="client-name" required maxlength="120">
+                </div>
+                <div>
+                    <label for="client-username">Usuário</label>
+                    <input id="client-username" required maxlength="80">
+                </div>
+                <div>
+                    <label for="client-password">Senha</label>
+                    <input id="client-password" type="password" minlength="6" autocomplete="new-password">
+                    <small>Obrigatória no cadastro; vazia na edição preserva a atual.</small>
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Salvar cliente</button>
+                    <button id="cancel-client" class="secondary" type="button">Cancelar</button>
+                </div>
+            </form>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Ações</th></tr></thead>
+                <tbody id="clients-body"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="user-section" class="hidden">
+        <div class="section-heading">
+            <h1>Usuários</h1>
+            <button id="refresh-users" class="secondary" type="button">Atualizar</button>
+        </div>
+        <div class="panel">
+            <h2 id="user-form-title">Cadastrar usuário</h2>
+            <form id="user-form" class="form-grid">
+                <input id="user-id" type="hidden">
+                <div>
+                    <label for="user-name">Nome</label>
+                    <input id="user-name" required maxlength="120">
+                </div>
+                <div>
+                    <label for="user-username">Usuário</label>
+                    <input id="user-username" required maxlength="80">
+                </div>
+                <div>
+                    <label for="user-password">Senha</label>
+                    <input id="user-password" type="password" minlength="6" autocomplete="new-password">
+                    <small>Obrigatória no cadastro; vazia na edição preserva a atual.</small>
+                </div>
+                <div>
+                    <label for="user-profile">Perfil</label>
+                    <select id="user-profile" required>
+                        <option value="CLIENTE">CLIENTE</option>
+                        <option value="VENDEDOR">VENDEDOR</option>
+                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Salvar usuário</button>
+                    <button id="cancel-user" class="secondary" type="button">Cancelar</button>
+                </div>
+            </form>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Ações</th></tr></thead>
+                <tbody id="users-body"></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<script src="js/app.js"></script>
+</body>
+</html>
