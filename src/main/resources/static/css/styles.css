@@ -27,6 +27,7 @@ button { border: 0; border-radius: 6px; padding: .65rem 1rem; background: #2563e
 button:hover { background: #1d4ed8; }
 button.secondary { background: #6b7280; }
 button.danger { background: #dc2626; }
+button:disabled { opacity: .55; cursor: not-allowed; }
 .login-card button { width: 100%; margin-top: 1rem; }
 .topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem max(1rem, calc((100% - 1100px) / 2)); background: #111827; color: #fff; }
 .topbar .muted { color: #d1d5db; margin-left: .75rem; }
@@ -41,6 +42,7 @@ th, td { text-align: left; border-bottom: 1px solid #e5e7eb; padding: .75rem; wh
 th { background: #e5e7eb; }
 td button { margin-right: .35rem; padding: .45rem .7rem; }
 .hidden { display: none !important; }
+.audit-pagination { margin-top: 1rem; }
 
 @media (max-width: 600px) {
     .topbar { align-items: flex-start; }

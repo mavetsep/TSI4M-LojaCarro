@@ -132,6 +132,80 @@
             </table>
         </div>
     </section>
+
+    <section id="audit-section" class="hidden">
+        <div class="section-heading">
+            <h1>Logs de auditoria</h1>
+            <button id="refresh-audits" class="secondary" type="button">Atualizar</button>
+        </div>
+        <div class="panel">
+            <form id="audit-filter-form" class="form-grid">
+                <div>
+                    <label for="audit-user">Usuário</label>
+                    <input id="audit-user" maxlength="80">
+                </div>
+                <div>
+                    <label for="audit-action">Ação</label>
+                    <select id="audit-action">
+                        <option value="">Todas</option>
+                        <option>LOGIN_SUCESSO</option>
+                        <option>LOGIN_FALHA</option>
+                        <option>LOGOUT</option>
+                        <option>CONSULTAR</option>
+                        <option>LISTAR</option>
+                        <option>CRIAR</option>
+                        <option>EDITAR</option>
+                        <option>EXCLUIR</option>
+                        <option>ACESSO_NEGADO</option>
+                        <option>ERRO</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="audit-resource">Recurso</label>
+                    <select id="audit-resource">
+                        <option value="">Todos</option>
+                        <option>CARRO</option>
+                        <option>USUARIO</option>
+                        <option>AUTENTICACAO</option>
+                        <option>AUTORIZACAO</option>
+                        <option>AUDITORIA</option>
+                        <option>REQUISICAO</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="audit-result">Resultado</label>
+                    <select id="audit-result">
+                        <option value="">Todos</option>
+                        <option>SUCESSO</option>
+                        <option>ERRO</option>
+                        <option>NEGADO</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="audit-start">Data inicial</label>
+                    <input id="audit-start" type="date">
+                </div>
+                <div>
+                    <label for="audit-end">Data final</label>
+                    <input id="audit-end" type="date">
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Filtrar</button>
+                </div>
+            </form>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Data e hora</th><th>Usuário</th><th>Perfil</th><th>Ação</th><th>Recurso</th><th>Resultado</th><th>IP</th><th>Detalhes</th></tr></thead>
+                <tbody id="audits-body"></tbody>
+            </table>
+        </div>
+        <div class="section-heading audit-pagination">
+            <button id="audit-previous" class="secondary" type="button">Anterior</button>
+            <span id="audit-page-info" class="muted"></span>
+            <button id="audit-next" class="secondary" type="button">Próxima</button>
+        </div>
+    </section>
 </main>
 <script src="js/app.js"></script>
 </body>

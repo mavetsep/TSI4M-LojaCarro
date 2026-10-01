@@ -1,5 +1,5 @@
 (() => {
-    const state = { user: null, editingCarId: null, editingClientId: null, editingUserId: null };
+    const state = { user: null, editingCarId: null, editingClientId: null, editingUserId: null, auditPage: 0 };
     const byId = (id) => document.getElementById(id);
 
     function showMessage(text, type = 'error') {
@@ -145,6 +145,50 @@
         });
     }
 
+    function auditFilters() {
+        return {
+            usuario: byId('audit-user').value.trim(),
+            acao: byId('audit-action').value,
+            recurso: byId('audit-resource').value,
+            resultado: byId('audit-result').value,
+            dataInicial: byId('audit-start').value,
+            dataFinal: byId('audit-end').value
+        };
+    }
+
+    async function loadAudits(resetPage = false) {
+        if (resetPage) state.auditPage = 0;
+        const filters = auditFilters();
+        const params = new URLSearchParams({ page: String(state.auditPage), size: '10', sort: 'dataHora,desc' });
+        Object.entries(filters).forEach(([key, value]) => { if (value) params.set(key, value); });
+        const page = await request(`auditorias?${params.toString()}`);
+        const body = byId('audits-body');
+        body.replaceChildren();
+        page.content.forEach((audit) => {
+            const row = document.createElement('tr');
+            row.append(
+                cell(formatAuditDate(audit.dataHora)),
+                cell(audit.usuario),
+                cell(audit.perfil),
+                cell(audit.acao),
+                cell(audit.recurso),
+                cell(audit.resultado),
+                cell(audit.enderecoIp),
+                cell(audit.detalhes)
+            );
+            body.append(row);
+        });
+        byId('audit-page-info').textContent = page.totalPages === 0
+            ? 'Nenhum registro'
+            : `Página ${page.number + 1} de ${page.totalPages}`;
+        byId('audit-previous').disabled = page.first;
+        byId('audit-next').disabled = page.last || page.totalPages === 0;
+    }
+
+    function formatAuditDate(value) {
+        return value ? value.replace('T', ' ') : '';
+    }
+
     function userActions(user) {
         const element = document.createElement('td');
         const edit = document.createElement('button');
@@ -203,9 +247,10 @@
             byId('car-form-section').classList.toggle('hidden', !canEditCars);
             byId('client-section').classList.toggle('hidden', !isVendor());
             byId('user-section').classList.toggle('hidden', !isAdmin());
+            byId('audit-section').classList.toggle('hidden', !isAdmin());
             await loadCars();
             if (isVendor()) await loadClients();
-            if (isAdmin()) await loadUsers();
+            if (isAdmin()) { await loadUsers(); await loadAudits(); }
         } catch (error) {
             window.location.href = 'login.html';
         }
@@ -221,5 +266,17 @@
     byId('refresh-users').addEventListener('click', () => loadUsers().catch((error) => showMessage(error.message)));
     byId('user-form').addEventListener('submit', saveUser);
     byId('cancel-user').addEventListener('click', resetUserForm);
+    byId('refresh-audits').addEventListener('click', () => loadAudits().catch((error) => showMessage(error.message)));
+    byId('audit-filter-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        loadAudits(true).catch((error) => showMessage(error.message));
+    });
+    byId('audit-previous').addEventListener('click', () => {
+        if (state.auditPage > 0) { state.auditPage -= 1; loadAudits().catch((error) => showMessage(error.message)); }
+    });
+    byId('audit-next').addEventListener('click', () => {
+        state.auditPage += 1;
+        loadAudits().catch((error) => showMessage(error.message));
+    });
     start();
 })();
