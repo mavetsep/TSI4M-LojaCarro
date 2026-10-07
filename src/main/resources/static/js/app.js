@@ -9,7 +9,8 @@
     }
 
     async function request(url, options = {}) {
-        const config = { ...options, headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) } };
+        const userHeader = state.user && state.user.id ? { 'X-Usuario-Id': String(state.user.id) } : {};
+        const config = { ...options, headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...userHeader, ...(options.headers || {}) } };
         const response = await fetch(url, config);
         const contentType = response.headers.get('content-type') || '';
         const body = contentType.includes('application/json') ? await response.json() : await response.text();

@@ -25,6 +25,9 @@ public class Auditoria {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataHora;
 
+    @Column(name = "usuario_id")
+    private Long usuarioId;
+
     @Column(nullable = false, length = 80)
     private String usuario;
 
@@ -81,6 +84,14 @@ public class Auditoria {
 
     public String getUsuario() {
         return usuario;
+    }
+
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
     }
 
     public void setUsuario(String usuario) {

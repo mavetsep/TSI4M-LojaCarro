@@ -4,6 +4,7 @@ import br.org.edu.ifrn.LojaCarro.model.AcaoAuditoria;
 import br.org.edu.ifrn.LojaCarro.model.Auditoria;
 import br.org.edu.ifrn.LojaCarro.model.Perfil;
 import br.org.edu.ifrn.LojaCarro.model.ResultadoAuditoria;
+import br.org.edu.ifrn.LojaCarro.dto.NomeUsuarioApiResponse;
 import br.org.edu.ifrn.LojaCarro.exception.RecursoNaoEncontradoException;
 import br.org.edu.ifrn.LojaCarro.repository.AuditoriaRepository;
 import br.org.edu.ifrn.LojaCarro.util.RequestUtils;
@@ -32,10 +33,13 @@ public class AuditoriaService {
 
     private final AuditoriaRepository auditoriaRepository;
     private final TransactionTemplate newTransaction;
+    private final UsuarioApiClient usuarioApiClient;
 
     public AuditoriaService(AuditoriaRepository auditoriaRepository,
-                            PlatformTransactionManager transactionManager) {
+                            PlatformTransactionManager transactionManager,
+                            UsuarioApiClient usuarioApiClient) {
         this.auditoriaRepository = auditoriaRepository;
+        this.usuarioApiClient = usuarioApiClient;
         this.newTransaction = new TransactionTemplate(transactionManager);
         this.newTransaction.setPropagationBehavior(TransactionTemplate.PROPAGATION_REQUIRES_NEW);
     }
@@ -102,7 +106,11 @@ public class AuditoriaService {
                            HttpServletRequest request, Authentication authentication,
                            String usuarioForcado) {
         Auditoria auditoria = new Auditoria();
-        auditoria.setUsuario(usuarioForcado != null ? usuarioForcado : usuario(authentication));
+        Long usuarioId = usuarioId(request);
+        auditoria.setUsuarioId(usuarioId);
+        auditoria.setUsuario(usuarioForcado != null
+                ? usuarioForcado
+                : nomeUsuario(usuarioId, authentication));
         auditoria.setPerfil(perfil(authentication));
         auditoria.setAcao(RequestUtils.safe(acao.name(), 30));
         auditoria.setRecurso(RequestUtils.safe(recurso, 60));
@@ -115,9 +123,9 @@ public class AuditoriaService {
 
         try {
             newTransaction.executeWithoutResult(status -> auditoriaRepository.save(auditoria));
-            LOGGER.info("Auditoria registrada: acao={}, recurso={}, recursoId={}, resultado={}, usuario={}",
+            LOGGER.info("Auditoria registrada: acao={}, recurso={}, recursoId={}, resultado={}, usuarioId={}, usuario={}",
                     auditoria.getAcao(), auditoria.getRecurso(), auditoria.getRecursoId(),
-                    auditoria.getResultado(), auditoria.getUsuario());
+                    auditoria.getResultado(), auditoria.getUsuarioId(), auditoria.getUsuario());
         } catch (Exception ex) {
             // Auditoria nunca pode impedir a operação original.
             LOGGER.error("Falha ao persistir auditoria: acao={}, recurso={}, resultado={}",
@@ -131,6 +139,39 @@ public class AuditoriaService {
             return "ANONIMO";
         }
         return RequestUtils.safe(authentication.getName(), 80);
+    }
+
+    private String nomeUsuario(Long usuarioId, Authentication authentication) {
+        if (usuarioId == null) {
+            return usuario(authentication);
+        }
+        try {
+            NomeUsuarioApiResponse response = usuarioApiClient.buscarNome(usuarioId);
+            if (response != null && response.nome() != null && !response.nome().isBlank()) {
+                return RequestUtils.safe(response.nome(), 80);
+            }
+        } catch (Exception ex) {
+            // A indisponibilidade da API de usuários não pode impedir a operação nem o log.
+            LOGGER.warn("Não foi possível consultar o nome do usuário {} na API externa: {}",
+                    usuarioId, ex.getMessage());
+        }
+        return usuario(authentication);
+    }
+
+    private Long usuarioId(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        String value = request.getHeader("X-Usuario-Id");
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Long.valueOf(value.trim());
+        } catch (NumberFormatException ex) {
+            LOGGER.warn("Cabeçalho X-Usuario-Id inválido recebido: {}", RequestUtils.safe(value, 30));
+            return null;
+        }
     }
 
     private String perfil(Authentication authentication) {
