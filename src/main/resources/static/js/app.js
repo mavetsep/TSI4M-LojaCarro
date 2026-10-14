@@ -1,5 +1,5 @@
 (() => {
-    const state = { user: null, editingCarId: null, editingClientId: null, editingUserId: null, auditPage: 0 };
+    const state = { user: null, activeModule: 'cars', editingCarId: null, editingClientId: null, editingUserId: null, auditPage: 0 };
     const byId = (id) => document.getElementById(id);
 
     function showMessage(text, type = 'error') {
@@ -23,6 +23,43 @@
 
     const isVendor = () => state.user && state.user.perfil === 'VENDEDOR';
     const isAdmin = () => state.user && state.user.perfil === 'ADMINISTRADOR';
+
+    const moduleInfo = {
+        cars: ['Lista de carros', 'Consulte e gerencie os veículos da loja.'],
+        users: ['Usuários', 'Cadastre e gerencie os usuários do sistema.'],
+        audits: ['Logs', 'Consulte o histórico de operações do sistema.']
+    };
+
+    async function openModule(module) {
+        if (module === 'users' && !(isVendor() || isAdmin())) return;
+        if (module === 'audits' && !isAdmin()) return;
+        state.activeModule = module;
+        document.querySelectorAll('.module-section').forEach((section) => section.classList.add('hidden'));
+        byId(`${module}-section`).classList.remove('hidden');
+        document.querySelectorAll('.nav-item').forEach((item) => item.classList.toggle('active', item.dataset.module === module));
+        byId('page-title').textContent = moduleInfo[module][0];
+        byId('page-subtitle').textContent = moduleInfo[module][1];
+        window.location.hash = module;
+        closeSidebar();
+        showMessage('');
+        try {
+            if (module === 'cars') await loadCars();
+            if (module === 'users') await (isAdmin() ? loadUsers() : loadClients());
+            if (module === 'audits') await loadAudits();
+        } catch (error) { showMessage(error.message); }
+    }
+
+    function toggleSidebar() {
+        const open = byId('sidebar').classList.toggle('open');
+        byId('sidebar-overlay').classList.toggle('visible', open);
+        byId('menu-button').setAttribute('aria-expanded', String(open));
+    }
+
+    function closeSidebar() {
+        byId('sidebar').classList.remove('open');
+        byId('sidebar-overlay').classList.remove('visible');
+        byId('menu-button').setAttribute('aria-expanded', 'false');
+    }
 
     async function loadCars() {
         const cars = await request('carro/listarCarros');
@@ -70,13 +107,14 @@
         byId('car-preco').value = car.preco;
         byId('car-form-title').textContent = 'Editar carro';
         byId('car-form-section').classList.remove('hidden');
-        window.scrollTo({ top: byId('car-form-section').offsetTop, behavior: 'smooth' });
+        byId('car-form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function resetCarForm() {
         state.editingCarId = null;
         byId('car-form').reset();
         byId('car-form-title').textContent = 'Cadastrar carro';
+        byId('car-form-section').classList.add('hidden');
     }
 
     async function saveCar(event) {
@@ -244,21 +282,31 @@
         try {
             state.user = await request('api/auth/me');
             byId('user-summary').textContent = `${state.user.nome} (${state.user.perfil})`;
+            byId('sidebar-user-name').textContent = state.user.nome;
+            byId('sidebar-user-profile').textContent = state.user.perfil;
             const canEditCars = isVendor() || isAdmin();
-            byId('car-form-section').classList.toggle('hidden', !canEditCars);
+            byId('new-car').classList.toggle('hidden', !canEditCars);
+            byId('users-nav').classList.toggle('hidden', !(isVendor() || isAdmin()));
+            byId('audits-nav').classList.toggle('hidden', !isAdmin());
             byId('client-section').classList.toggle('hidden', !isVendor());
             byId('user-section').classList.toggle('hidden', !isAdmin());
-            byId('audit-section').classList.toggle('hidden', !isAdmin());
-            await loadCars();
-            if (isVendor()) await loadClients();
-            if (isAdmin()) { await loadUsers(); await loadAudits(); }
+            const requestedModule = window.location.hash.slice(1);
+            await openModule(['cars', 'users', 'audits'].includes(requestedModule) ? requestedModule : 'cars');
         } catch (error) {
             window.location.href = 'login.html';
         }
     }
 
     byId('logout-button').addEventListener('click', logout);
+    byId('menu-button').addEventListener('click', toggleSidebar);
+    byId('sidebar-overlay').addEventListener('click', closeSidebar);
+    document.querySelectorAll('.nav-item').forEach((item) => item.addEventListener('click', () => openModule(item.dataset.module)));
     byId('refresh-cars').addEventListener('click', () => loadCars().catch((error) => showMessage(error.message)));
+    byId('new-car').addEventListener('click', () => {
+        resetCarForm();
+        byId('car-form-section').classList.remove('hidden');
+        byId('car-modelo').focus();
+    });
     byId('car-form').addEventListener('submit', saveCar);
     byId('cancel-car').addEventListener('click', resetCarForm);
     byId('refresh-clients').addEventListener('click', () => loadClients().catch((error) => showMessage(error.message)));

@@ -7,21 +7,54 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-<header class="topbar">
-    <div>
-        <strong>LojaCarro</strong>
-        <span id="user-summary" class="muted"></span>
-    </div>
-    <button id="logout-button" class="secondary" type="button">Sair</button>
-</header>
+<div class="app-shell">
+    <aside id="sidebar" class="sidebar">
+        <div class="brand"><span class="brand-mark">LC</span><span>LojaCarro</span></div>
+        <nav class="sidebar-nav" aria-label="Módulos do sistema">
+            <button class="nav-item active" type="button" data-module="cars">
+                <span aria-hidden="true">🚗</span><span>Lista de carros</span>
+            </button>
+            <button id="users-nav" class="nav-item hidden" type="button" data-module="users">
+                <span aria-hidden="true">👥</span><span>Usuários</span>
+            </button>
+            <button id="audits-nav" class="nav-item hidden" type="button" data-module="audits">
+                <span aria-hidden="true">📋</span><span>Logs</span>
+            </button>
+        </nav>
+        <div class="sidebar-user">
+            <strong id="sidebar-user-name"></strong>
+            <span id="sidebar-user-profile"></span>
+        </div>
+    </aside>
 
-<main class="container">
-    <div id="app-message" class="message" role="alert" aria-live="polite"></div>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
-    <section>
+    <div class="workspace">
+        <header class="topbar">
+            <button id="menu-button" class="icon-button" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
+            <div>
+                <h1 id="page-title">Lista de carros</h1>
+                <p id="page-subtitle">Consulte e gerencie os veículos da loja.</p>
+            </div>
+            <div class="topbar-actions">
+                <span id="user-summary"></span>
+                <button id="logout-button" class="secondary" type="button">Sair</button>
+            </div>
+        </header>
+
+        <main class="container">
+            <div id="app-message" class="message" role="alert" aria-live="polite"></div>
+
+    <section id="cars-section" class="module-section">
         <div class="section-heading">
-            <h1>Carros</h1>
-            <button id="refresh-cars" class="secondary" type="button">Atualizar</button>
+            <div>
+                <h2>Veículos cadastrados</h2>
+                <p class="muted">Visualize os modelos disponíveis e seus dados.</p>
+            </div>
+            <div class="heading-actions">
+                <button id="new-car" class="hidden" type="button">+ Novo carro</button>
+                <button id="refresh-cars" class="secondary" type="button">Atualizar</button>
+            </div>
         </div>
         <div id="car-form-section" class="panel hidden">
             <h2 id="car-form-title">Cadastrar carro</h2>
@@ -29,7 +62,7 @@
                 <input id="car-id" type="hidden">
                 <div>
                     <label for="car-modelo">Modelo</label>
-                    <input id="car-modelo" required maxlength="80">
+                    <input id="car-modelo" required>
                 </div>
                 <div>
                     <label for="car-ano">Ano</label>
@@ -53,9 +86,10 @@
         </div>
     </section>
 
-    <section id="client-section" class="hidden">
+    <section id="users-section" class="module-section hidden">
+        <div id="client-section" class="hidden">
         <div class="section-heading">
-            <h1>Clientes</h1>
+            <div><h2>Clientes</h2><p class="muted">Cadastre e atualize os clientes da loja.</p></div>
             <button id="refresh-clients" class="secondary" type="button">Atualizar</button>
         </div>
         <div class="panel">
@@ -87,11 +121,11 @@
                 <tbody id="clients-body"></tbody>
             </table>
         </div>
-    </section>
+        </div>
 
-    <section id="user-section" class="hidden">
+        <div id="user-section" class="hidden">
         <div class="section-heading">
-            <h1>Usuários</h1>
+            <div><h2>Usuários</h2><p class="muted">Gerencie clientes, vendedores e administradores.</p></div>
             <button id="refresh-users" class="secondary" type="button">Atualizar</button>
         </div>
         <div class="panel">
@@ -131,11 +165,12 @@
                 <tbody id="users-body"></tbody>
             </table>
         </div>
+        </div>
     </section>
 
-    <section id="audit-section" class="hidden">
+    <section id="audits-section" class="module-section hidden">
         <div class="section-heading">
-            <h1>Logs de auditoria</h1>
+            <div><h2>Logs de auditoria</h2><p class="muted">Acompanhe as operações realizadas no sistema.</p></div>
             <button id="refresh-audits" class="secondary" type="button">Atualizar</button>
         </div>
         <div class="panel">
@@ -206,7 +241,9 @@
             <button id="audit-next" class="secondary" type="button">Próxima</button>
         </div>
     </section>
-</main>
+        </main>
+    </div>
+</div>
 <script src="js/app.js"></script>
 </body>
 </html>
